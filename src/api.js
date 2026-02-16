@@ -129,6 +129,14 @@ const executeScraper = async (req, res) => {
 app.post('/api/scrape', executeScraper);
 app.get('/api/scrape', executeScraper);
 
+// Servir archivos estáticos desde public
+app.use(express.static('public'));
+
+// Dashboard principal
+app.get('/dashboard', (req, res) => {
+  res.sendFile(__dirname + '/../public/dashboard.html');
+});
+
 // Página de inicio simple
 app.get('/', (req, res) => {
   res.send(`
@@ -248,6 +256,12 @@ app.get('/', (req, res) => {
           <span class="method get">GET</span>
           <span class="method post">POST</span>
           <strong>/api/scrape</strong> - Ejecutar scraper manualmente
+        </div>
+        
+        <h2>📊 Panel de Control</h2>
+        <div class="info-box">
+          <p>🎉 <strong>Nuevo:</strong> Accede al panel de control completo con visualización en tiempo real del progreso del scraping.</p>
+          <p><a href="/dashboard" style="color: #4472C4; font-weight: bold; text-decoration: none;">➡️ Ir al Dashboard Interactivo</a></p>
         </div>
         
         <h2>⚡ Ejecutar Scraper Ahora</h2>
