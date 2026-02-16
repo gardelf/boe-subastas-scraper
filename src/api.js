@@ -132,7 +132,7 @@ app.get('/api/scrape', executeScraper);
 // Servir archivos estáticos desde public
 app.use(express.static('public'));
 
-// Dashboard principal con visualización de datos
+// Dashboard principal
 app.get('/dashboard', (req, res) => {
   res.send(`
 <!DOCTYPE html>
@@ -144,192 +144,55 @@ app.get('/dashboard', (req, res) => {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
-    .container { max-width: 1400px; margin: 0 auto; }
+    .container { max-width: 1200px; margin: 0 auto; }
     .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 20px; }
-    h1 { color: #333; margin-bottom: 10px; font-size: 32px; }
-    h2 { color: #333; margin-bottom: 20px; font-size: 24px; }
-    .btn { padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+    h1 { color: #333; margin-bottom: 20px; }
+    .btn { padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .info { color: #666; margin: 10px 0; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
-    .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
-    .stat-number { font-size: 36px; font-weight: bold; margin: 10px 0; }
-    .stat-label { font-size: 14px; opacity: 0.9; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th { background: #f5f5f5; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd; }
-    td { padding: 12px; border-bottom: 1px solid #eee; }
-    tr:hover { background: #f9f9f9; }
-    .status-success { color: #4caf50; font-weight: bold; }
-    .status-error { color: #f44336; font-weight: bold; }
-    .loading { text-align: center; padding: 20px; color: #667eea; }
-    .refresh-btn { float: right; padding: 8px 16px; font-size: 14px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h1>🔍 BOE Subastas Scraper</h1>
+      <h1>🔍 BOE Subastas Scraper - Dashboard</h1>
       <p class="info">Panel de control para Rivas Vaciamadrid</p>
-      <button class="btn" onclick="runScraper()" id="runBtn">🚀 Ejecutar Scraper Ahora</button>
-      <button class="btn refresh-btn" onclick="loadData()">🔄 Actualizar</button>
+      <button class="btn" onclick="runScraper()">🚀 Ejecutar Scraper</button>
       <div id="status" style="margin-top: 20px;"></div>
     </div>
     
-    <div class="stats-grid" id="statsGrid">
-      <div class="stat-card">
-        <div class="stat-label">Total Subastas</div>
-        <div class="stat-number" id="totalSubastas">-</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Última Ejecución</div>
-        <div class="stat-number" id="lastRun">-</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Nuevas Hoy</div>
-        <div class="stat-number" id="newToday">-</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Estado</div>
-        <div class="stat-number" id="status">-</div>
-      </div>
-    </div>
-
     <div class="card">
-      <h2>📈 Historial de Ejecuciones</h2>
-      <div id="runsTable" class="loading">Cargando datos...</div>
-    </div>
-
-    <div class="card">
-      <h2>📋 Últimas Subastas Encontradas</h2>
-      <div id="subastasTable" class="loading">Cargando datos...</div>
-    </div>
-    
-    <div class="card">
-      <h2>🔗 Enlaces Rápidos</h2>
+      <h2>📊 Endpoints Disponibles</h2>
       <ul style="list-style: none; padding: 0;">
-        <li style="margin: 10px 0;"><a href="/api/subastas" style="color: #667eea; text-decoration: none; font-weight: 500;">📋 Ver Subastas (JSON)</a></li>
-        <li style="margin: 10px 0;"><a href="/api/runs" style="color: #667eea; text-decoration: none; font-weight: 500;">📈 Ver Historial (JSON)</a></li>
-        <li style="margin: 10px 0;"><a href="/api/export/json" style="color: #667eea; text-decoration: none; font-weight: 500;">💾 Exportar JSON</a></li>
-        <li style="margin: 10px 0;"><a href="/api/export/excel" style="color: #667eea; text-decoration: none; font-weight: 500;">📊 Exportar Excel</a></li>
+        <li style="margin: 10px 0;"><a href="/api/subastas" style="color: #667eea;">📋 Ver Subastas</a></li>
+        <li style="margin: 10px 0;"><a href="/api/runs" style="color: #667eea;">📈 Ver Historial</a></li>
+        <li style="margin: 10px 0;"><a href="/api/export/json" style="color: #667eea;">💾 Exportar JSON</a></li>
+        <li style="margin: 10px 0;"><a href="/api/export/excel" style="color: #667eea;">📊 Exportar Excel</a></li>
       </ul>
     </div>
   </div>
   
   <script>
-    async function loadData() {
-      try {
-        // Cargar estadísticas
-        const statsRes = await fetch('/api/stats');
-        const stats = await statsRes.json();
-        
-        document.getElementById('totalSubastas').textContent = stats.data.total_subastas || 0;
-        document.getElementById('newToday').textContent = stats.data.nuevas_hoy || 0;
-        
-        // Cargar historial de ejecuciones
-        const runsRes = await fetch('/api/runs');
-        const runs = await runsRes.json();
-        
-        if (runs.success && runs.data.length > 0) {
-          const lastRun = runs.data[0];
-          const lastRunDate = new Date(lastRun.start_time);
-          document.getElementById('lastRun').textContent = lastRunDate.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
-          document.getElementById('status').innerHTML = lastRun.status === 'success' ? '✅' : '❌';
-          
-          let tableHTML = '<table><thead><tr><th>ID</th><th>Fecha y Hora</th><th>Duración</th><th>Estado</th><th>Encontradas</th><th>Nuevas</th><th>Errores</th></tr></thead><tbody>';
-          
-          runs.data.forEach(run => {
-            const startDate = new Date(run.start_time);
-            const endDate = new Date(run.end_time);
-            const duration = ((endDate - startDate) / 1000).toFixed(1);
-            const statusClass = run.status === 'success' ? 'status-success' : 'status-error';
-            
-            tableHTML += `<tr>
-              <td>#${run.id}</td>
-              <td>${startDate.toLocaleString('es-ES')}</td>
-              <td>${duration}s</td>
-              <td class="${statusClass}">${run.status === 'success' ? '✅ Exitoso' : '❌ Error'}</td>
-              <td>${run.total_found}</td>
-              <td>${run.new_items}</td>
-              <td>${run.errors}</td>
-            </tr>`;
-          });
-          
-          tableHTML += '</tbody></table>';
-          document.getElementById('runsTable').innerHTML = tableHTML;
-        } else {
-          document.getElementById('runsTable').innerHTML = '<p style="color: #999;">No hay ejecuciones registradas aún.</p>';
-          document.getElementById('lastRun').textContent = 'N/A';
-          document.getElementById('status').textContent = '-';
-        }
-        
-        // Cargar subastas
-        const subastasRes = await fetch('/api/subastas');
-        const subastas = await subasRes.json();
-        
-        if (subastas.success && subastas.data.length > 0) {
-          let tableHTML = '<table><thead><tr><th>ID</th><th>Título</th><th>Tipo</th><th>Estado</th><th>Valor</th><th>Localidad</th></tr></thead><tbody>';
-          
-          subastas.data.slice(0, 10).forEach(subasta => {
-            tableHTML += `<tr>
-              <td>${subasta.id_subasta}</td>
-              <td><strong>${subasta.titulo || 'Sin título'}</strong></td>
-              <td>${subasta.tipo_subasta || '-'}</td>
-              <td>${subasta.estado || '-'}</td>
-              <td>${subasta.valor_subasta ? subasta.valor_subasta.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : '-'}</td>
-              <td>${subasta.localidad || '-'}</td>
-            </tr>`;
-          });
-          
-          tableHTML += '</tbody></table>';
-          document.getElementById('subastasTable').innerHTML = tableHTML;
-        } else {
-          document.getElementById('subastasTable').innerHTML = '<p style="color: #999;">No hay subastas registradas aún. Ejecuta el scraper para comenzar.</p>';
-        }
-        
-      } catch (error) {
-        console.error('Error cargando datos:', error);
-        document.getElementById('runsTable').innerHTML = '<p style="color: #f44336;">Error cargando datos. Intenta actualizar la página.</p>';
-      }
-    }
-    
     async function runScraper() {
       const statusDiv = document.getElementById('status');
-      const runBtn = document.getElementById('runBtn');
-      
-      runBtn.disabled = true;
-      runBtn.textContent = '⏳ Ejecutando...';
-      statusDiv.innerHTML = '<p style="color: #667eea; font-weight: 500;">⏳ Scraper iniciado. Esto puede tardar 5-10 segundos...</p>';
+      statusDiv.innerHTML = '<p style="color: #667eea;">⏳ Ejecutando scraper...</p>';
       
       try {
         const response = await fetch('/api/scrape');
         const data = await response.json();
         
         if (data.success) {
-          statusDiv.innerHTML = '<p style="color: #4caf50; font-weight: 500;">✅ Scraper completado. Actualizando datos...</p>';
+          statusDiv.innerHTML = '<p style="color: #4caf50;">✅ Scraper iniciado correctamente</p>';
           setTimeout(() => {
-            loadData();
-            runBtn.disabled = false;
-            runBtn.textContent = '🚀 Ejecutar Scraper Ahora';
-            statusDiv.innerHTML = '';
-          }, 3000);
+            window.location.href = '/api/runs';
+          }, 2000);
         } else {
-          statusDiv.innerHTML = '<p style="color: #f44336; font-weight: 500;">❌ Error: ' + data.error + '</p>';
-          runBtn.disabled = false;
-          runBtn.textContent = '🚀 Ejecutar Scraper Ahora';
+          statusDiv.innerHTML = '<p style="color: #f44336;">❌ Error: ' + data.error + '</p>';
         }
       } catch (error) {
-        statusDiv.innerHTML = '<p style="color: #f44336; font-weight: 500;">❌ Error: ' + error.message + '</p>';
-        runBtn.disabled = false;
-        runBtn.textContent = '🚀 Ejecutar Scraper Ahora';
+        statusDiv.innerHTML = '<p style="color: #f44336;">❌ Error: ' + error.message + '</p>';
       }
     }
-    
-    // Cargar datos al iniciar
-    loadData();
-    
-    // Auto-refresh cada 30 segundos
-    setInterval(loadData, 30000);
   </script>
 </body>
 </html>
