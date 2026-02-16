@@ -132,19 +132,10 @@ app.get('/api/scrape', executeScraper);
 // Servir archivos estáticos desde public
 app.use(express.static('public'));
 
-// Dashboard principal
+// Dashboard principal (HTML inline para evitar problemas de rutas)
+const dashboardHTML = require('./dashboard-route.js');
 app.get('/dashboard', (req, res) => {
-  const fs = require('fs');
-  const path = require('path');
-  
-  try {
-    const dashboardPath = path.join(__dirname, 'dashboard.html');
-    const dashboardHTML = fs.readFileSync(dashboardPath, 'utf8');
-    res.send(dashboardHTML);
-  } catch (error) {
-    logger.error('Error loading dashboard:', error);
-    res.status(500).send('Error cargando dashboard: ' + error.message);
-  }
+  res.send(dashboardHTML);
 });
 
 // Página de inicio simple
