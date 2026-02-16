@@ -134,8 +134,17 @@ app.use(express.static('public'));
 
 // Dashboard principal
 app.get('/dashboard', (req, res) => {
+  const fs = require('fs');
   const path = require('path');
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
+  
+  try {
+    const dashboardPath = path.join(__dirname, 'dashboard.html');
+    const dashboardHTML = fs.readFileSync(dashboardPath, 'utf8');
+    res.send(dashboardHTML);
+  } catch (error) {
+    logger.error('Error loading dashboard:', error);
+    res.status(500).send('Error cargando dashboard: ' + error.message);
+  }
 });
 
 // Página de inicio simple
