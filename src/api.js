@@ -132,10 +132,71 @@ app.get('/api/scrape', executeScraper);
 // Servir archivos estáticos desde public
 app.use(express.static('public'));
 
-// Dashboard principal (HTML inline para evitar problemas de rutas)
-const dashboardHTML = require('./dashboard-route.js');
+// Dashboard principal
 app.get('/dashboard', (req, res) => {
-  res.send(dashboardHTML);
+  res.send(`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - BOE Subastas Scraper</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 20px; }
+    h1 { color: #333; margin-bottom: 20px; }
+    .btn { padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+    .info { color: #666; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>🔍 BOE Subastas Scraper - Dashboard</h1>
+      <p class="info">Panel de control para Rivas Vaciamadrid</p>
+      <button class="btn" onclick="runScraper()">🚀 Ejecutar Scraper</button>
+      <div id="status" style="margin-top: 20px;"></div>
+    </div>
+    
+    <div class="card">
+      <h2>📊 Endpoints Disponibles</h2>
+      <ul style="list-style: none; padding: 0;">
+        <li style="margin: 10px 0;"><a href="/api/subastas" style="color: #667eea;">📋 Ver Subastas</a></li>
+        <li style="margin: 10px 0;"><a href="/api/runs" style="color: #667eea;">📈 Ver Historial</a></li>
+        <li style="margin: 10px 0;"><a href="/api/export/json" style="color: #667eea;">💾 Exportar JSON</a></li>
+        <li style="margin: 10px 0;"><a href="/api/export/excel" style="color: #667eea;">📊 Exportar Excel</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <script>
+    async function runScraper() {
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerHTML = '<p style="color: #667eea;">⏳ Ejecutando scraper...</p>';
+      
+      try {
+        const response = await fetch('/api/scrape');
+        const data = await response.json();
+        
+        if (data.success) {
+          statusDiv.innerHTML = '<p style="color: #4caf50;">✅ Scraper iniciado correctamente</p>';
+          setTimeout(() => {
+            window.location.href = '/api/runs';
+          }, 2000);
+        } else {
+          statusDiv.innerHTML = '<p style="color: #f44336;">❌ Error: ' + data.error + '</p>';
+        }
+      } catch (error) {
+        statusDiv.innerHTML = '<p style="color: #f44336;">❌ Error: ' + error.message + '</p>';
+      }
+    }
+  </script>
+</body>
+</html>
+  `);
 });
 
 // Página de inicio simple
