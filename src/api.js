@@ -135,7 +135,7 @@ app.use(express.static('public'));
 // Dashboard principal
 app.get('/dashboard', (req, res) => {
   const path = require('path');
-  res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'));
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
 // Página de inicio simple
