@@ -95,8 +95,8 @@ app.get('/api/runs', (req, res) => {
   }
 });
 
-// Ejecutar scraper manualmente
-app.post('/api/scrape', async (req, res) => {
+// Ejecutar scraper manualmente (función compartida para GET y POST)
+const executeScraper = async (req, res) => {
   try {
     logger.info('Scraper ejecutado manualmente vía API');
     
@@ -123,7 +123,11 @@ app.post('/api/scrape', async (req, res) => {
       error: error.message
     });
   }
-});
+};
+
+// Permitir tanto POST como GET para facilitar el uso desde navegador
+app.post('/api/scrape', executeScraper);
+app.get('/api/scrape', executeScraper);
 
 // Página de inicio simple
 app.get('/', (req, res) => {
@@ -169,6 +173,48 @@ app.get('/', (req, res) => {
         }
         .get { background: #61affe; color: white; }
         .post { background: #49cc90; color: white; }
+        .btn {
+          display: inline-block;
+          padding: 12px 24px;
+          background: #4472C4;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          font-size: 16px;
+          cursor: pointer;
+          margin: 10px 0;
+          transition: background 0.3s;
+        }
+        .btn:hover {
+          background: #365a9e;
+        }
+        .btn:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+        }
+        .status {
+          padding: 10px;
+          margin: 10px 0;
+          border-radius: 5px;
+          display: none;
+        }
+        .status.success {
+          background: #d4edda;
+          color: #155724;
+          border: 1px solid #c3e6cb;
+        }
+        .status.error {
+          background: #f8d7da;
+          color: #721c24;
+          border: 1px solid #f5c6cb;
+        }
+        .info-box {
+          background: #e7f3ff;
+          padding: 15px;
+          border-radius: 5px;
+          margin: 15px 0;
+          border-left: 4px solid #2196F3;
+        }
       </style>
     </head>
     <body>
@@ -199,15 +245,59 @@ app.get('/', (req, res) => {
         </div>
         
         <div class="endpoint">
+          <span class="method get">GET</span>
           <span class="method post">POST</span>
           <strong>/api/scrape</strong> - Ejecutar scraper manualmente
         </div>
+        
+        <h2>⚡ Ejecutar Scraper Ahora</h2>
+        <div class="info-box">
+          <p><strong>🔍 Buscará subastas en:</strong> ${process.env.LOCALIDAD_FILTRO || 'Rivas Vaciamadrid'}, ${process.env.PROVINCIA_FILTRO || 'Madrid'}</p>
+          <p><strong>⏱️ Tiempo estimado:</strong> 5-10 segundos</p>
+        </div>
+        <button class="btn" onclick="runScraper()" id="scrapeBtn">🚀 Ejecutar Scraper</button>
+        <div class="status" id="status"></div>
         
         <h2>Información</h2>
         <p><strong>Localidad filtrada:</strong> ${process.env.LOCALIDAD_FILTRO || 'Rivas Vaciamadrid'}</p>
         <p><strong>Programación:</strong> ${process.env.SCRAPER_SCHEDULE || '0 9 * * *'} (cron)</p>
         <p><strong>Base de datos:</strong> ${process.env.DATABASE_PATH || './data/subastas.db'}</p>
       </div>
+      
+      <script>
+        async function runScraper() {
+          const btn = document.getElementById('scrapeBtn');
+          const status = document.getElementById('status');
+          
+          btn.disabled = true;
+          btn.textContent = '⏳ Ejecutando...';
+          status.style.display = 'none';
+          
+          try {
+            const response = await fetch('/api/scrape');
+            const data = await response.json();
+            
+            if (data.success) {
+              status.className = 'status success';
+              status.textContent = '✅ ' + data.message + '. Espera 5-10 segundos y recarga para ver resultados.';
+              status.style.display = 'block';
+              
+              // Redirigir a /api/subastas después de 8 segundos
+              setTimeout(() => {
+                window.location.href = '/api/subastas';
+              }, 8000);
+            } else {
+              throw new Error(data.error || 'Error desconocido');
+            }
+          } catch (error) {
+            status.className = 'status error';
+            status.textContent = '❌ Error: ' + error.message;
+            status.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = '🚀 Ejecutar Scraper';
+          }
+        }
+      </script>
     </body>
     </html>
   `);
