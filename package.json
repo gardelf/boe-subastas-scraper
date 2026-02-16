@@ -1,0 +1,35 @@
+{
+  "name": "boe-subastas-scraper",
+  "version": "1.0.0",
+  "description": "Scraper diario de subastas del BOE para Rivas Vaciamadrid usando Playwright",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "scrape": "node src/scraper.js",
+    "dev": "node --watch src/index.js",
+    "test": "node src/scraper.js"
+  },
+  "keywords": [
+    "boe",
+    "subastas",
+    "scraper",
+    "playwright",
+    "rivas-vaciamadrid"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "express": "^4.18.2",
+    "node-cron": "^3.0.3",
+    "better-sqlite3": "^9.2.2",
+    "exceljs": "^4.3.0",
+    "nodemailer": "^6.9.7",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
